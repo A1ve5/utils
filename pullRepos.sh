@@ -1,5 +1,7 @@
 #!/bin/bash
 #
+# Usage: From your repository base folder run ./pullRepos.sh
+#
 # by A1ve5 2017
 
 for i in $(ls);
