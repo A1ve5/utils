@@ -1,0 +1,1 @@
+rsync -avzP --exclude=Downloads/ --exclude=.cache/ --delete -e ssh /home/lalves/ fix@193.137.99.235:/home/fix/LIP_HOME/

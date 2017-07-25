@@ -1,0 +1,61 @@
+#!/bin/bash
+
+HEADER="\\n\\e[31m------:\\e[0m"
+
+echo -e "$HEADER env"
+env | sort
+echo -e "$HEADER id"
+id
+
+cat <<EOT >> $HOME/script.sh
+#!/bin/bash
+curl -v -H 'Content-Type: application/json'\
+ -X PUT -d '{"admin_token": "token_prolog", "accounting": "Hello from the container"}'\
+ http://192.168.1.19:5000/set_accounting
+EOT
+chmod +x $HOME/script.sh
+
+echo -e "$HEADER bdocker pull ubuntu:latest"
+bdocker pull ubuntu:latest
+
+echo -e "$HEADER bdocker run container"
+BDOCKER_ID=`bdocker run -d -w /tmp -v $HOME:/tmp ubuntu "./script.sh"`
+sleep 10
+
+echo -e "$HEADER bdocker ps"
+bdocker ps
+
+echo -e "$HEADER bdocker cp $BDOCKER_ID:/etc/hostname $HOME/"
+bdocker cp $BDOCKER_ID:/etc/hostname $HOME/
+
+# FIXME(A1ve5): Not working. 
+#echo -e "$HEADER bdocker logs $BDOCKER_ID"
+#bdocker logs $BDOCKER_ID
+
+echo -e "$HEADER bdocker inspect $BDOCKER_ID"
+bdocker inspect $BDOCKER_ID
+
+echo -e "$HEADER bdocker rm -f $BDOCKER_ID"
+bdocker rm -f $BDOCKER_ID
+
+# FIXME(A1ve5): "all" not working 
+#echo -e "$HEADER bdocker ps -a"
+#bdocker ps -a
+
+echo -e "$HEADER accounting server?"
+curl -H 'Content-Type: application/json'\
+ -X PUT -d '{"admin_token": "token_prolog", "accounting": "Are you there?" }'\
+ http://ge.novalocal:5000/set_accounting
+
+echo -e "$HEADER list new files $HOME"
+ls -last $HOME | head
+
+echo -e "$HEADER show script.sh"
+cat $HOME/script.sh
+
+echo -e "$HEADER show hostname"
+cat $HOME/hostname
+
+echo -e "$HEADER Cleaning $HOME"
+rm -f $HOME/script.*
+rm -f $HOME/hostname
